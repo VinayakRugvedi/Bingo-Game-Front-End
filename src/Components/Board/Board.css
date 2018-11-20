@@ -1,0 +1,10 @@
+.boardContainer {
+  width: 70%;
+  border: 2px solid green;
+  margin: 5px auto;
+  padding: 5px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-column-gap: 2%;
+  grid-row-gap: 18px;
+}
