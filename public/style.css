@@ -1,0 +1,15 @@
+body {
+  border: 2px solid black;
+  width: 75%;
+  margin: 0 auto;
+}
+
+.heading {
+  text-align: center;
+}
+
+#root {
+  width: 80%;
+  margin: 0 auto;
+  border: 2px solid red;
+}
