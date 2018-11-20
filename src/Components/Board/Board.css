@@ -8,3 +8,19 @@
   grid-column-gap: 2%;
   grid-row-gap: 18px;
 }
+
+.readyButton {
+  margin: 10px auto;
+  text-align: center;
+}
+
+.readyButton button {
+  width: 25%;
+  height: 45px;
+  font-size: 25px;
+  border: 2px solid black;
+}
+
+.readyButton button:hover {
+  background-color: red;
+}
