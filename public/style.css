@@ -10,6 +10,6 @@ body {
 
 #root {
   width: 80%;
-  margin: 0 auto;
+  margin: 5px auto;
   border: 2px solid red;
 }
