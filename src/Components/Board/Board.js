@@ -6,24 +6,51 @@ class Board extends React.Component {
   constructor() {
     super()
     this.state = {
-      squareValue : 1
+      valueGenerator : 1,
+      squareValues : new Array(25).fill(''),
+      boardSet : 'none'
     }
-    // this.prepareAllSquares = this.prepareAllSquares.bind(this)
   }
 
-  prepareAllSquares() {
-    let allSquares = []
-    for( let i = 1; i <= 25; i++) {
-      allSquares.push(<Square key={i} value={i}/>)
+  updateSquareValue = (index) => {
+    let squareValuesCopy = this.state.squareValues
+    squareValuesCopy[index] = this.state.valueGenerator
+    if (this.state.valueGenerator === 25) {
+      this.setState({
+        valueGenerator : this.state.valueGenerator + 1,
+        squareValues : squareValuesCopy,
+        boardSet : true
+      })
+    } else {
+      this.setState({
+        valueGenerator : this.state.valueGenerator + 1,
+        squareValues : squareValuesCopy
+      })
     }
-    return allSquares
+  }
+
+  renderSquares() {
+    let Squares = this.state.squareValues.map( (item, index) => {
+      return <Square
+              key={index}
+              getSquareValue={(index) => this.updateSquareValue(index)}
+              value={item}
+              index={index}/>
+    }
+    )
+    return Squares
   }
 
   render() {
-    const allSquares = this.prepareAllSquares()
+    const Squares = this.renderSquares()
     return (
+      <div className="gameContainer">
       <div className="boardContainer">
-        {allSquares}
+        {Squares}
+      </div>
+      <div className="readyButton">
+        <button style={{display : this.state.boardSet}}>I am set to play!</button>
+      </div>
       </div>
     )
   }
