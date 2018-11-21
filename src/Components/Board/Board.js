@@ -3,45 +3,55 @@ import './Board.css'
 import Square from '../Square/Square.js'
 
 class Board extends React.Component {
-  constructor() {
-    super()
+  constructor () {
+    super ()
     this.state = {
       valueGenerator : 1,
-      squareValues : new Array(25).fill(''),
-      boardSet : 'none'
+      squareValues : new Array(25).fill(0),
+      boardSet : false,
+      buttonSet : 'none'
     }
+    this.readyToPlay = this.readyToPlay.bind(this)
   }
 
   updateSquareValue = (index) => {
     let squareValuesCopy = this.state.squareValues
     squareValuesCopy[index] = this.state.valueGenerator
     if (this.state.valueGenerator === 25) {
-      this.setState({
+      this.setState ({
         valueGenerator : this.state.valueGenerator + 1,
         squareValues : squareValuesCopy,
-        boardSet : true
+        buttonSet : ''
       })
     } else {
-      this.setState({
+      this.setState ({
         valueGenerator : this.state.valueGenerator + 1,
         squareValues : squareValuesCopy
       })
     }
   }
 
-  renderSquares() {
+  readyToPlay () {
+    this.setState({
+      boardSet : true,
+      buttonSet : 'none'
+    })
+  }
+
+  renderSquares () {
     let Squares = this.state.squareValues.map( (item, index) => {
       return <Square
               key={index}
               getSquareValue={(index) => this.updateSquareValue(index)}
               value={item}
-              index={index}/>
+              index={index}
+              boardSet={this.state.boardSet}/>
     }
     )
     return Squares
   }
 
-  render() {
+  render () {
     const Squares = this.renderSquares()
     return (
       <div className="gameContainer">
@@ -49,7 +59,7 @@ class Board extends React.Component {
         {Squares}
       </div>
       <div className="readyButton">
-        <button style={{display : this.state.boardSet}}>I am set to play!</button>
+        <button style={{display : this.state.buttonSet}} onClick={this.readyToPlay}>I am set to play!</button>
       </div>
       </div>
     )
