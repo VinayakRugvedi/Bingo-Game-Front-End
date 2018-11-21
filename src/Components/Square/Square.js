@@ -2,23 +2,37 @@ import React from 'react'
 import './Square.css'
 
 class Square extends React.Component {
-  constructor(props) {
-    super(props)
+  constructor (props) {
+    super (props)
+    this.state = {
+      squareSet : false
+    }
     this.assignValue = this.assignValue.bind(this)
+    this.talkToServer = this.talkToServer.bind(this)
   }
 
-  assignValue() {
-    let value = this.props.value
-                ? () => null
-                : (
-                    this.props.getSquareValue(this.props.index)
-                  )
+  assignValue () {
+    if (!this.props.value) {
+      this.setState({
+        squareSet : true
+      })
+      this.props.getSquareValue(this.props.index)
+    }
   }
 
-  render() {
+  talkToServer () {
+    console.log('Server guy')
+  }
+
+  render () {
     return (
-      <div className="squareContainer" title="Click to add a random number" onClick={this.assignValue}>
-        {(this.props.value) ? this.props.value : ''}
+      <div
+        className="squareContainer"
+        title="Click to add a random number"
+        onClick={(this.state.squareSet && this.props.boardSet)
+                  ? this.talkToServer
+                  : this.assignValue}>
+          {(this.props.value) ? this.props.value : ''}
       </div>
     )
   }
