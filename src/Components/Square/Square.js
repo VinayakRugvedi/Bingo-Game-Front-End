@@ -27,7 +27,7 @@ class Square extends React.Component {
         title="Click to add a random number"
         onClick={(this.state.squareSet && this.props.boardSet)
                   ? () => {
-                    if(!this.props.square.marked)
+                    if(!this.props.square.marked && this.props.myTurn)
                     this.props.talkToServer(this.props.square.position)
                   }
                   : this.assignValue}>
