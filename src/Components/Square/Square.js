@@ -5,34 +5,33 @@ class Square extends React.Component {
   constructor (props) {
     super (props)
     this.state = {
-      squareSet : false
+      squareSet : false,
+      valueSpoken : false
     }
     this.assignValue = this.assignValue.bind(this)
-    this.talkToServer = this.talkToServer.bind(this)
   }
 
   assignValue () {
-    if (!this.props.value) {
+    if (!this.props.square.value) {
       this.setState({
         squareSet : true
-      })
-      this.props.getSquareValue(this.props.index)
+      }, () => this.props.updateSquareValue(this.props.square.position))
     }
-  }
-
-  talkToServer () {
-    console.log('Server guy')
   }
 
   render () {
     return (
       <div
+        style={{backgroundColor : this.props.square.color}}
         className="squareContainer"
         title="Click to add a random number"
         onClick={(this.state.squareSet && this.props.boardSet)
-                  ? this.talkToServer
+                  ? () => {
+                    if(!this.props.square.marked)
+                    this.props.talkToServer(this.props.square.position)
+                  }
                   : this.assignValue}>
-          {(this.props.value) ? this.props.value : ''}
+          {(this.props.square.value) ? this.props.square.value : ''}
       </div>
     )
   }
