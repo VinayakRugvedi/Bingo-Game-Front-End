@@ -1,16 +1,16 @@
 .boardContainer {
-  width: 70%;
+  width: 55%;
   border: 2px solid green;
-  margin: 5px auto;
+  margin: 55px auto 10px auto;
   padding: 5px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-column-gap: 2%;
-  grid-row-gap: 18px;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
 }
 
 .readyButton {
-  margin: 10px auto;
+  margin: 0px auto;
   text-align: center;
 }
 
