@@ -1,6 +1,5 @@
 .squareContainer {
-  border: 2px solid yellow;
-  height: 120px;
+  height: 110px;
   text-align: center;
   cursor: pointer;
 }
