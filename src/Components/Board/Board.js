@@ -11,20 +11,19 @@ class Board extends React.Component {
       squares : new Array(5).fill().map(function (item, index) {
         return ({
           value : 0,
-          color : 'white',
+          color : '#843b62',
           marked : false,
           position : index
         })
       }),
       boardSet : false,
-      myTurn : true,
+      myTurn : false,
       buttonSet : 'none',
       myRoom : '',
       playerAvailable : false
     }
-    // this.socket = socketIoClient.connect('http://localhost:8000')
     this.readyToPlay = this.readyToPlay.bind(this)
-    this.setSocketListeners = this.setListeners.bind(this)
+    this.setSocketListeners = this.setSocketListeners.bind(this)
   }
 
   setSocketListeners() {
@@ -46,13 +45,14 @@ class Board extends React.Component {
       let squaresCopy = this.state.squares
       for (let square of squaresCopy) {
         if(square.value === valueObj.value) {
-          square.color = 'red'
+          square.color = '#f67e7d'
           square.marked = 'true'
           break
         }
       }
       this.setState({
         squares : squaresCopy,
+        myTurn : true
       })
     })
   }
@@ -79,19 +79,20 @@ class Board extends React.Component {
   readyToPlay () {
     this.setState({
       boardSet : true,
-      buttonSet : 'none'
+      buttonSet : 'none',
+      myTurn : true
     })
   }
 
   talkToServer = (position) => {
     console.log('server');
     let squaresCopy = this.state.squares
-    squaresCopy[position].color = 'red'
+    squaresCopy[position].color = '#f67e7d'
     squaresCopy[position].marked = true
     this.socket.emit('myValue', squaresCopy[position].value, this.state.myRoom)
     this.setState({
       squares : squaresCopy,
-      // myTurn : !this.state.myTurn
+      myTurn : false
     })
   }
 
@@ -121,7 +122,11 @@ class Board extends React.Component {
             ? <button className="buttonBeforeBoardSet">Setup your Board!</button>
             : !this.state.playerAvailable
               ? <button>Waiting for a player!</button>
-              : <button className="buttonAfterBoardSet" style={{display : this.state.buttonSet}} onClick={this.readyToPlay}>Start the Game!</button>
+              : !this.state.boardSet
+                ? <button className="buttonAfterBoardSet" style={{display : this.state.buttonSet}}     onClick={this.readyToPlay}>Start the Game!</button>
+                : this.state.myTurn
+                  ? <button className="myTurnButton">Your turn dude!</button>
+                  : ''
           }
         </div>
       </div>
