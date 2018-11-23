@@ -3,17 +3,15 @@ import './Board.css'
 import Square from '../Square/Square.js'
 import socketIoClient from 'socket.io-client'
 
-const socket = socketIoClient.connect('http://localhost:8000')
-
 class Board extends React.Component {
   constructor () {
     super ()
     this.state = {
       valueGenerator : 1,
-      squares : new Array(25).fill().map(function (item, index) {
+      squares : new Array(5).fill().map(function (item, index) {
         return ({
           value : 0,
-          color : '#c3073f',
+          color : 'white',
           marked : false,
           position : index
         })
@@ -21,20 +19,30 @@ class Board extends React.Component {
       boardSet : false,
       myTurn : true,
       buttonSet : 'none',
-      myRoom : ''
+      myRoom : '',
+      playerAvailable : false
     }
+    // this.socket = socketIoClient.connect('http://localhost:8000')
     this.readyToPlay = this.readyToPlay.bind(this)
+    this.setSocketListeners = this.setListeners.bind(this)
   }
 
-  componentDidMount () {
-    socket.on('sendRoom', (room) => {
-      console.log(room.room)
+  setSocketListeners() {
+    this.socket.on('sendRoomName', (room) => {
+      console.log(room.roomName);
       this.setState({
-        myRoom : room.room
+        myRoom : room.roomName
       })
     })
 
-    socket.on('update', (valueObj) => {
+    this.socket.on('playerAvailable', (size) => {
+      console.log(size)
+      this.setState({
+        playerAvailable : true
+      })
+    })
+
+    this.socket.on('update', (valueObj) => {
       let squaresCopy = this.state.squares
       for (let square of squaresCopy) {
         if(square.value === valueObj.value) {
@@ -45,7 +53,6 @@ class Board extends React.Component {
       }
       this.setState({
         squares : squaresCopy,
-        // myTurn : this.state.myTurn ? false : true
       })
     })
   }
@@ -53,9 +60,9 @@ class Board extends React.Component {
   updateSquareValue = (index) => {
     let squaresCopy = this.state.squares
     squaresCopy[index].value = this.state.valueGenerator
-    // 843b62
-    squaresCopy[index].color = 'red'
-    if (this.state.valueGenerator === 25) {
+    if (this.state.valueGenerator === 5) {
+      this.socket = socketIoClient.connect('http://localhost:8000')
+      this.setSocketListeners()
       this.setState ({
         valueGenerator : this.state.valueGenerator + 1,
         squares : squaresCopy,
@@ -77,11 +84,11 @@ class Board extends React.Component {
   }
 
   talkToServer = (position) => {
-    console.log('hee');
+    console.log('server');
     let squaresCopy = this.state.squares
     squaresCopy[position].color = 'red'
     squaresCopy[position].marked = true
-    socket.emit('myValue', squaresCopy[position].value, this.state.myRoom)
+    this.socket.emit('myValue', squaresCopy[position].value, this.state.myRoom)
     this.setState({
       squares : squaresCopy,
       // myTurn : !this.state.myTurn
@@ -110,9 +117,11 @@ class Board extends React.Component {
           {Squares}
         </div>
         <div className="readyButton">
-          { this.state.valueGenerator <= 25
+          { this.state.valueGenerator <= 5
             ? <button className="buttonBeforeBoardSet">Setup your Board!</button>
-            : <button className="buttonBeforeBoardSet" style={{display : this.state.buttonSet}} onClick={this.readyToPlay}>I am set to play!</button>
+            : !this.state.playerAvailable
+              ? <button>Waiting for a player!</button>
+              : <button className="buttonAfterBoardSet" style={{display : this.state.buttonSet}} onClick={this.readyToPlay}>Start the Game!</button>
           }
         </div>
       </div>
