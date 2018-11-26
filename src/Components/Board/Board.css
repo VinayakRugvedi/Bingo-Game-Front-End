@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Allerta+Stencil|Aref+Ruqaa');
 
+.gameContainer {
+  position: relative;
+}
+
 .boardContainer {
   width: 55%;
   margin: 55px auto 10px auto;
