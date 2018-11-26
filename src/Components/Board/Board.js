@@ -31,12 +31,14 @@ class Board extends React.Component {
         description: ''
       }
     }
-    this.initialState = {...this.state}
-    console.log(this.initialState);
     this.readyToPlay = this.readyToPlay.bind(this)
     this.setSocketListeners = this.setSocketListeners.bind(this)
     this.setTheBoard = this.setTheBoard.bind(this)
     this.startGameAgain = this.startGameAgain.bind(this)
+  }
+
+  componentDidMount () {
+    this.initialState = JSON.parse(JSON.stringify(this.state))
   }
 
   setSocketListeners() {
@@ -66,10 +68,56 @@ class Board extends React.Component {
         }
       }
       statusCopy.cols[position % 5] -= 1
+      statusCopy.rows[Math.floor(position / 5)] -= 1
+      if(position === 12) {
+        statusCopy.diags[0] -= 1
+        statusCopy.diags[1] -= 1
+      }
+      else if(position % 6 === 0) statusCopy.diags[0] -= 1
+      else if(position % 4 === 0) statusCopy.diags[1] -= 1
+
+      let count = 0
+      for(let item of statusCopy.rows) {
+        if(item === 0) count++
+      }
+      for(let item of statusCopy.cols) {
+        if(item === 0) count++
+      }
+      for(let item of statusCopy.diags) {
+        if(item === 0) count++
+      }
+
+      console.log(count, 'sets done');
+
+      if(count >= 5) {
+        this.socket.emit('winner')
+        this.setState({
+          buttonSet : 'none',
+          modalWindow : {
+            display : true,
+            heading : 'Congratulations!',
+            description : 'Finally, you have won the game...'
+          },
+          myTurn : false
+        })
+      } else {
+        this.setState({
+          squares : squaresCopy,
+          myTurn : true,
+          status : statusCopy
+        })
+      }
+    })
+
+    this.socket.on('lost', () => {
       this.setState({
-        squares : squaresCopy,
-        myTurn : true,
-        status : statusCopy
+        buttonSet : 'none',
+        modalWindow : {
+          display : true,
+          heading : 'Disappointment',
+          description : 'You lost, better luck next time...'
+        },
+        myTurn : false
       })
     })
 
@@ -82,7 +130,8 @@ class Board extends React.Component {
           display : true,
           heading : 'OOPS!',
           description : 'Looks like the other player has left'
-        }
+        },
+        myTurn : false
       })
     })
 
@@ -148,19 +197,54 @@ class Board extends React.Component {
     let squaresCopy = this.state.squares, statusCopy = this.state.status
     squaresCopy[position].color = '#f67e7d'
     squaresCopy[position].marked = true
+
     statusCopy.cols[position % 5] -= 1
-    console.table(statusCopy)
-    this.socket.emit('myValue', squaresCopy[position].value, this.state.myRoom)
-    this.setState({
-      squares : squaresCopy,
-      myTurn : false,
-      status : statusCopy
-    })
+    statusCopy.rows[Math.floor(position / 5)] -= 1
+    if(position === 12) {
+      statusCopy.diags[0] -= 1
+      statusCopy.diags[1] -= 1
+    }
+    else if(position % 6 === 0) statusCopy.diags[0] -= 1
+    else if(position % 4 === 0) statusCopy.diags[1] -= 1
+
+    console.table(statusCopy);
+
+    let count = 0
+    for(let item of statusCopy.rows) {
+      if(item === 0) count++
+    }
+    for(let item of statusCopy.cols) {
+      if(item === 0) count++
+    }
+    for(let item of statusCopy.diags) {
+      if(item === 0) count++
+    }
+
+    console.log(count, 'sets done');
+
+    if(count >= 5) {
+      this.socket.emit('winner')
+      this.setState({
+        buttonSet : 'none',
+        modalWindow : {
+          display : true,
+          heading : 'Congratulations!',
+          description : 'Finally, you have won the game...'
+        },
+        myTurn : false
+      })
+    } else {
+      this.socket.emit('myValue', squaresCopy[position].value, this.state.myRoom)
+      this.setState({
+        squares : squaresCopy,
+        myTurn : false,
+        status : statusCopy
+      })
+    }
   }
 
   startGameAgain () {
-    console.table(this.initialState)
-    this.setState({...this.initialState})
+    this.setState(this.initialState)
   }
 
   renderSquares () {
