@@ -84,7 +84,7 @@ class Board extends React.Component {
   }
 
   setTheBoard () {
-    let values = [], done = true, boundary = 25, randomValues = []
+    let values = [], boundary = 25, randomValues = []
     for(let i = 1; i < 26; i++) values[i-1] = i
     while(values.length !== 0) {
       let index = Math.floor(Math.random() * boundary)
