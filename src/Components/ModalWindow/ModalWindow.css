@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css?family=Allerta+Stencil|Aref+Ruqaa');
+
+.modalWindowBG {
+  width: 55%;
+  height: 91%;
+  background-color: #00a8b5;
+  position: absolute;
+  top: 0.8%;
+  left: 22.5%;
+  font-family: 'Aref Ruqaa', serif;
+}
+
+.modalWindowContent {
+  width: 99.5%;
+  height: 99.5%;
+  border: 2px solid white;
+}
+
+.content {
+  width: 99%;
+  height: 45%;
+  margin: 26% auto;
+  border: 2px solid black;
+}
+
+.content p {
+  width: 100%;
+  margin: 2% auto;
+  font-size: 35px;
+  text-align: center;
+}
+
+.content button {
+  width: 40%;
+  height: 20%;
+  margin: 3% 29%;
+  text-align: center;
+  font-size: 30px;
+  background-color: black;
+  color: white;
+  font-family: 'Aref Ruqaa', serif;
+  border: none
+}
+
+.content button:hover {
+  background-color: orangered;
+  color: black;
+}
