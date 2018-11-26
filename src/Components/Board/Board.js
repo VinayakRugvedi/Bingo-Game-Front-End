@@ -2,6 +2,7 @@ import React from 'react'
 
 import './Board.css'
 import Square from '../Square/Square.js'
+import ModalWindow from '../ModalWindow/ModalWindow.js'
 
 import socketIoClient from 'socket.io-client'
 
@@ -23,11 +24,19 @@ class Board extends React.Component {
       buttonSet : 'none',
       myRoom : '',
       playerAvailable : false,
-      status : {rows : [5,5,5,5,5], cols : [5,5,5,5,5], diags : [5,5]}
+      status : {rows : [5,5,5,5,5], cols : [5,5,5,5,5], diags : [5,5]},
+      modalWindow : {
+        display : 'none',
+        heading : '',
+        description: ''
+      }
     }
+    this.initialState = {...this.state}
+    console.log(this.initialState);
     this.readyToPlay = this.readyToPlay.bind(this)
     this.setSocketListeners = this.setSocketListeners.bind(this)
     this.setTheBoard = this.setTheBoard.bind(this)
+    this.startGameAgain = this.startGameAgain.bind(this)
   }
 
   setSocketListeners() {
@@ -46,11 +55,12 @@ class Board extends React.Component {
     })
 
     this.socket.on('update', (valueObj) => {
+      console.log('getting value');
       let squaresCopy = this.state.squares, position, statusCopy = this.state.status
       for (let square of squaresCopy) {
         if(square.value === valueObj.value) {
           square.color = '#f67e7d'
-          square.marked = 'true'
+          square.marked = true
           position = square.position
           break
         }
@@ -61,6 +71,23 @@ class Board extends React.Component {
         myTurn : true,
         status : statusCopy
       })
+    })
+
+    this.socket.on('playerDisconnected', () => {
+      this.socket.close()
+      console.log('The other player disconnected')
+      this.setState({
+        buttonSet : 'none',
+        modalWindow : {
+          display : true,
+          heading : 'OOPS!',
+          description : 'Looks like the other player has left'
+        }
+      })
+    })
+
+    this.socket.on('hello', () => {
+      console.log('Welcome')
     })
   }
 
@@ -131,6 +158,11 @@ class Board extends React.Component {
     })
   }
 
+  startGameAgain () {
+    console.table(this.initialState)
+    this.setState({...this.initialState})
+  }
+
   renderSquares () {
     let squares = this.state.squares.map( (square, index) => {
       return <Square
@@ -168,6 +200,9 @@ class Board extends React.Component {
                   ? <span className="myTurnButton">Your turn dude!</span>
                   : <span className="myTurnButton">Wait for your turn...</span>
           }
+        </div>
+        <div style={{display:this.state.modalWindow.display}}>
+          <ModalWindow modalData={this.state.modalWindow} startGameAgain={this.startGameAgain}/>
         </div>
       </div>
     )
