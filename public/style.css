@@ -1,18 +1,23 @@
 body {
-  border: 2px solid black;
   width: 75%;
   margin: 0 auto;
-  background-color: #0b032d;
-  color : white;
+  background-color: black;
+  color : black;
 }
 
 .heading {
+  margin: 0px auto;
   text-align: center;
+  color: white;
+  font-family: 'Aref Ruqaa', serif;
+  font-size: 40px;
+  text-shadow: 0px 0px 5px orangered,
+               0px 0px 5px red,
+               0px 0px 5px darkred;
 }
 
 #root {
   width: 80%;
   height: 75%;
-  margin: 60px auto;
-  border: 2px solid red;
+  margin: 100px auto 20px auto;
 }
