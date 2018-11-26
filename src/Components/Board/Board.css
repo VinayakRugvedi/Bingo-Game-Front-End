@@ -1,6 +1,7 @@
+@import url('https://fonts.googleapis.com/css?family=Allerta+Stencil|Aref+Ruqaa');
+
 .boardContainer {
   width: 55%;
-  border: 2px solid green;
   margin: 55px auto 10px auto;
   padding: 5px;
   display: grid;
@@ -9,18 +10,22 @@
   grid-row-gap: 5px;
 }
 
-.readyButton {
+.checkPointButtons {
   margin: 0px auto;
   text-align: center;
 }
 
-.readyButton button {
-  width: 25%;
+.checkpointButtons span, .checkpointButtons button {
+  width: 55%;
   height: 45px;
   font-size: 25px;
-  border: 2px solid black;
+  border: none;
+  background-color: #000;
+  color: white;
+  font-family: 'Aref Ruqaa', serif;
 }
 
-.readyButton button:hover {
-  background-color: red;
+.checkpointButtons button:hover {
+  color: red;
+  border-radius: 5px;
 }
