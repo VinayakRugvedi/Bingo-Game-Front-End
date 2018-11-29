@@ -5,6 +5,7 @@ import Square from '../Square/Square.js'
 import ModalWindow from '../ModalWindow/ModalWindow.js'
 
 import socketIoClient from 'socket.io-client'
+import setSocketListeners from '../../socketListeners.js'
 
 class Board extends React.Component {
   constructor () {
@@ -32,7 +33,6 @@ class Board extends React.Component {
       }
     }
     this.readyToPlay = this.readyToPlay.bind(this)
-    this.setSocketListeners = this.setSocketListeners.bind(this)
     this.setTheBoard = this.setTheBoard.bind(this)
     this.startGameAgain = this.startGameAgain.bind(this)
   }
@@ -41,111 +41,13 @@ class Board extends React.Component {
     this.initialState = JSON.parse(JSON.stringify(this.state))
   }
 
-  setSocketListeners() {
-    this.socket.on('sendRoomName', (room) => {
-      console.log(room.roomName);
-      this.setState({
-        myRoom : room.roomName
-      })
-    })
-
-    this.socket.on('playerAvailable', (size) => {
-      console.log(size)
-      this.setState({
-        playerAvailable : true
-      })
-    })
-
-    this.socket.on('update', (valueObj) => {
-      console.log('getting value');
-      let squaresCopy = this.state.squares, position, statusCopy = this.state.status
-      for (let square of squaresCopy) {
-        if(square.value === valueObj.value) {
-          square.color = '#f67e7d'
-          square.marked = true
-          position = square.position
-          break
-        }
-      }
-      statusCopy.cols[position % 5] -= 1
-      statusCopy.rows[Math.floor(position / 5)] -= 1
-      if(position === 12) {
-        statusCopy.diags[0] -= 1
-        statusCopy.diags[1] -= 1
-      }
-      else if(position % 6 === 0) statusCopy.diags[0] -= 1
-      else if(position % 4 === 0) statusCopy.diags[1] -= 1
-
-      let count = 0
-      for(let item of statusCopy.rows) {
-        if(item === 0) count++
-      }
-      for(let item of statusCopy.cols) {
-        if(item === 0) count++
-      }
-      for(let item of statusCopy.diags) {
-        if(item === 0) count++
-      }
-
-      console.log(count, 'sets done');
-
-      if(count >= 5) {
-        this.socket.emit('winner')
-        this.setState({
-          buttonSet : 'none',
-          modalWindow : {
-            display : true,
-            heading : 'Congratulations!',
-            description : 'Finally, you have won the game...'
-          },
-          myTurn : false
-        })
-      } else {
-        this.setState({
-          squares : squaresCopy,
-          myTurn : true,
-          status : statusCopy
-        })
-      }
-    })
-
-    this.socket.on('lost', () => {
-      this.setState({
-        buttonSet : 'none',
-        modalWindow : {
-          display : true,
-          heading : 'Disappointment',
-          description : 'You lost, better luck next time...'
-        },
-        myTurn : false
-      })
-    })
-
-    this.socket.on('playerDisconnected', () => {
-      this.socket.close()
-      console.log('The other player disconnected')
-      this.setState({
-        buttonSet : 'none',
-        modalWindow : {
-          display : true,
-          heading : 'OOPS!',
-          description : 'Looks like the other player has left'
-        },
-        myTurn : false
-      })
-    })
-
-    this.socket.on('hello', () => {
-      console.log('Welcome')
-    })
-  }
-
   updateSquareValue = (index) => {
     let squaresCopy = this.state.squares
     squaresCopy[index].value = this.state.valueGenerator
     if (this.state.valueGenerator === 25) {
-      this.socket = socketIoClient.connect('http://localhost:8000')
-      this.setSocketListeners()
+      const port = process.env.PORT || 8000
+      this.socket = socketIoClient.connect('http://localhost'+port)
+      setSocketListeners(this)
       this.setState ({
         valueGenerator : this.state.valueGenerator + 1,
         squares : squaresCopy,
@@ -173,9 +75,9 @@ class Board extends React.Component {
     for(let square of squaresCopy) {
       square.value = randomValues[boundary++]
     }
-
-    this.socket = socketIoClient.connect('http://localhost:8000')
-    this.setSocketListeners()
+    const port = process.env.PORT || 8000
+    this.socket = socketIoClient.connect('http://localhost:'+port)
+    setSocketListeners(this)
 
     this.setState({
       valueGenerator : 26,
@@ -193,7 +95,6 @@ class Board extends React.Component {
   }
 
   talkToServer = (position) => {
-    console.log('server');
     let squaresCopy = this.state.squares, statusCopy = this.state.status
     squaresCopy[position].color = '#f67e7d'
     squaresCopy[position].marked = true
@@ -207,8 +108,6 @@ class Board extends React.Component {
     else if(position % 6 === 0) statusCopy.diags[0] -= 1
     else if(position % 4 === 0) statusCopy.diags[1] -= 1
 
-    console.table(statusCopy);
-
     let count = 0
     for(let item of statusCopy.rows) {
       if(item === 0) count++
@@ -220,18 +119,14 @@ class Board extends React.Component {
       if(item === 0) count++
     }
 
-    console.log(count, 'sets done');
-
     if(count >= 5) {
       this.socket.emit('winner')
       this.setState({
-        buttonSet : 'none',
         modalWindow : {
           display : true,
           heading : 'Congratulations!',
           description : 'Finally, you have won the game...'
-        },
-        myTurn : false
+        }
       })
     } else {
       this.socket.emit('myValue', squaresCopy[position].value, this.state.myRoom)
@@ -244,7 +139,8 @@ class Board extends React.Component {
   }
 
   startGameAgain () {
-    this.setState(this.initialState)
+    if(this.socket.id) this.socket.close()
+    this.setState(JSON.parse(JSON.stringify(this.initialState)))
   }
 
   renderSquares () {
@@ -252,7 +148,7 @@ class Board extends React.Component {
       return <Square
               key={index}
               updateSquareValue={(e, index) => this.updateSquareValue(e, index)}
-              talkToServer={(index) => this.talkToServer(index)}//read
+              talkToServer={(index) => this.talkToServer(index)}
               square={square}
               myTurn={this.state.myTurn}
               boardSet={this.state.boardSet}/>
